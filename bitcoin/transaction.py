@@ -88,10 +88,13 @@ def deserialize(tx):
     for i in range(outs):
         obj["outs"].append({
             "value": read_as_int(8),
-            "script": read_var_string()
+            "script": read_var_string(),
+            "color": read_as_int(4)
         })
     obj["locktime"] = read_as_int(4)
+    obj["type"] = read_as_int(4)
     return obj
+
 
 def serialize(txobj):
     #if isinstance(txobj, bytes):
@@ -112,7 +115,9 @@ def serialize(txobj):
     for out in txobj["outs"]:
         o.append(encode(out["value"], 256, 8)[::-1])
         o.append(num_to_var_int(len(out["script"]))+out["script"])
+        o.append(encode(out["color"], 256, 4)[::-1])
     o.append(encode(txobj["locktime"], 256, 4)[::-1])
+    o.append(encode(txobj["type"], 256, 4)[::-1])
 
     return ''.join(o) if is_python2 else reduce(lambda x,y: x+y, o, bytes())
 
